@@ -33,7 +33,7 @@ class Fetcher extends events.EventEmitter {
     // set content-type to form-urlencoded
     if (options.body) {
       if (typeof options.body === 'object') {
-        req.type('form');
+        req.type(options.type || 'form');
       }
       req.send(options.body);
     }
@@ -207,6 +207,27 @@ export class VCPClient extends Fetcher {
         access_token: access_token
       });
     });
+  }
+
+  addRoster(cid, name = cid, name_kana = "") {
+    assert(cid, 'cid is required');
+
+    return this.discovery(scopes.ROSTER_SERVICE_HTTP_API).then(res => {
+      let url = `${res.endpoint}/${this.params.username}`;
+      let access_token = res.access_token;
+      let body = {
+        udc_id: cid,
+        name: name,
+        name_kana: name_kana
+      };
+
+      return this.fetch(url, {
+        method: 'post',
+        type: 'json',
+        access_token: access_token,
+        body: body
+      });
+    })
   }
 
   /**
